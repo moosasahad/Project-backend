@@ -8,8 +8,6 @@ dist/
 # Ignore environment variables
 .env
 
-#gitignore
-.gitignore
 
 # Ignore log files
 npm-debug.log
