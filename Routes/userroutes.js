@@ -1,9 +1,9 @@
 const express = require("express")
 const routes = express.Router();
-const trycatch = require("../Middleware/trycatch")
-const logincontroler = require("../Controller/logincontroler")
+const logincontroler = require("../Controller/logincontroler");
+const tryCatch = require("../Middleware/trycatch");
 routes
-    .post('/signup',logincontroler.userRg)
+    .post('/signup',tryCatch(logincontroler.userRg))
 
 
 

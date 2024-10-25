@@ -9,7 +9,7 @@ app.use(express.json())
 app.use(userrout)
 mongoose.connect(process.env.MONGO_URL)
 .then(()=>console.log("connected to mongodb"))
-.catch((error)=>console.log(error))
+.catch((error)=>console.log("error"))
 
 
 
