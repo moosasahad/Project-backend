@@ -6,12 +6,17 @@ const userproductcontrooler = require('../Controller/User/userproductcontrooler'
 routes
 
 //user registration login logout 
+
     .post('/signup',tryCatch(logincontroler.userRg))
     .post('/login',tryCatch(logincontroler.userlogin))
     .post('/logut',tryCatch(logincontroler.userlogout))
-// product get and post
 
+// product get,post,addcart and wishlist
+ 
     .post("/product",tryCatch(userproductcontrooler.addproduct))
+    .get('/product',tryCatch(userproductcontrooler.getallproducts))
+    .get('/product/:type',tryCatch(userproductcontrooler.getproductbytype))
+    .get('/productid/:id',tryCatch(userproductcontrooler.getproductbyid))
 
 
  module.exports = routes
