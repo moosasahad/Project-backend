@@ -1,4 +1,4 @@
-const product = require("../../Models/ProductSchema")
+const product = require("../../Models/Schema/ProductSchema")
 
 
 

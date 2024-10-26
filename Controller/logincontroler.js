@@ -1,5 +1,5 @@
-const user = require("../Models/userschema")
-const {JoiUserSchema} = require("../Models/validation")
+const user = require("../Models/Schema/userschema")
+const {JoiUserSchema} = require("../Models/joiSchema/validation")
 const bcrypt = require("bcrypt")
 const CustomError = require("../utils/customError")
 

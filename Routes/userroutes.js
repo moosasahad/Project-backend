@@ -3,6 +3,8 @@ const routes = express.Router();
 const logincontroler = require("../Controller/logincontroler");
 const tryCatch = require("../Middleware/trycatch");
 const userproductcontrooler = require('../Controller/User/userproductcontrooler')
+const usercartcontroller = require("../Controller/User/usercartcontroller")
+
 routes
 
 //user registration login logout 
@@ -17,6 +19,10 @@ routes
     .get('/product',tryCatch(userproductcontrooler.getallproducts))
     .get('/product/:type',tryCatch(userproductcontrooler.getproductbytype))
     .get('/productid/:id',tryCatch(userproductcontrooler.getproductbyid))
+
+// user cart contorller
+
+    .post('/addcart',tryCatch(usercartcontroller.addcart))
 
 
  module.exports = routes
