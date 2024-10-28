@@ -1,4 +1,5 @@
 const cart = require("../../Models/Schema/cartSchema")
+const CustomError = require("../../utils/customError")
 
 
 // addcart product --- 
@@ -10,23 +11,22 @@ const addcart = async (req,res)=>{
  
     
     let carts = await cart.findOne({user});
-    console.log("fdaf",carts);
-    
+    console.log("fdaf",carts);   
+
 if(carts){
-    const exitingproduct = cart.product.find((item)=>{
+    const exitingproduct = carts.product.find((item)=>{
         return item.productId==productId
-
-        
-
+  
     })
-    console.log("exitingproduct",exitingproduct);
     
 if(exitingproduct){
-    exitingproduct.quantity+=1
+    exitingproduct.quantity += 1
+    res.status(201).json("product quantity increased")
 }else{
-    cart.product.push({productId:productId,quantity:1})
+    carts.product.push({productId:productId,quantity:1})
+    res.status(200).json("new product added in same user")
 }
-    await cart.save()
+    await carts.save()
 }
     if(!carts){
         const newcart = new cart({
@@ -38,12 +38,82 @@ if(exitingproduct){
         return res.status(201).json(cartsend);
 
     }
-    return res.status(201).json("cartsend");
+    return res.status(200).json("carte created")
+    // return res.status(200).json("cart created");
+}
+
+// get all cart products
+
+const getcartproduct = async (req,res,next)=>{
+    const {user} = req.body;
+    
+    
+    const product =await cart.findOne({user}).populate('product.productId');
+    if(!product){
+        return next(new CustomError('Cart not found', 400))
+    }
+    res.status(200).json(product);
+    
+}
+
+// update cart item count
+
+
+const updatecartcount = async (req,res,next ) => {
+    const {productId, action,user } = req.body;
+    
+    
+    const cartdata = await cart.findOne({user}).populate('product.productId');
+    
+
+    if(!cartdata) {
+        return next(new CustomError('product with this id is not found', 404))
+    }
+    const cartProduct = cartdata.product.find(item => item.productId._id.toString() == productId);
+   
+    if(!cartProduct){
+        return next(new CustomError('product not found in cart', 404))
+    }
+    if(action === "increment"){
+        cartProduct.quantity += 1;        
+        // res.send("quantity increased")
+    }else if(action === "decrement" ){
+        if(cartProduct.quantity > 1){
+            cartProduct.quantity -= 1;
+            // res.send("quantity decrement")
+        }else{
+            return res.status(400).json("Quantity cannot be decremented below 1");
+        }
+    
+}
+await cartdata.save();
+res.status(200).json({ message: `Quantity ${action === "increment" ? "increased" : "decreased"} successfully` });
+}
+
+// delete cart item 
+
+const deletcartitem = async (req,res,next)=>{
+    const {user,productId} = req.body;
+    
+    const product = await cart.findOne({user}).populate('product.productId');
+
+    if(!product){
+        return next(new CustomError("cart not found",404))
+    }
+
+    const flterproduct = product.product.filter(item=>item.productId._id.toString() !== productId);
+    product.product = flterproduct;
+    product.save()
+    res.status(201).json('product deleted')
+    
 }
 
 module.exports={
     addcart,
-};
+    updatecartcount,
+    getcartproduct,
+    deletcartitem,
+}
 
 // const Cart = require("../../Models/Schema/cartSchema");
 
@@ -90,4 +160,5 @@ module.exports={
 
 // module.exports = {
 //   addcart,
+
 // };

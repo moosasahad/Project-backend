@@ -13,7 +13,7 @@ routes
     .post('/login',tryCatch(logincontroler.userlogin))
     .post('/logut',tryCatch(logincontroler.userlogout))
 
-// product get,post,addcart and wishlist
+// productcontroller get,post
  
     .post("/product",tryCatch(userproductcontrooler.addproduct))
     .get('/product',tryCatch(userproductcontrooler.getallproducts))
@@ -23,6 +23,9 @@ routes
 // user cart contorller
 
     .post('/addcart',tryCatch(usercartcontroller.addcart))
+    .get('/getcart',tryCatch(usercartcontroller.getcartproduct))
+    .post('/updatecartcount', tryCatch(usercartcontroller.updatecartcount))
+    .delete('/cartdelete', tryCatch(usercartcontroller.deletcartitem))
 
 
  module.exports = routes
