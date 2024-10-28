@@ -43,7 +43,7 @@ if(exitingproduct){
 
 module.exports={
     addcart,
-}
+};
 
 // const Cart = require("../../Models/Schema/cartSchema");
 
