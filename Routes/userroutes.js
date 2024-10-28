@@ -4,6 +4,8 @@ const logincontroler = require("../Controller/logincontroler");
 const tryCatch = require("../Middleware/trycatch");
 const userproductcontrooler = require('../Controller/User/userproductcontrooler')
 const usercartcontroller = require("../Controller/User/usercartcontroller")
+const wislistcontorller = require("../Controller/User/wislistcontorller");
+const wishlistSchema = require("../Models/Schema/wishlistSchema");
 
 routes
 
@@ -27,5 +29,10 @@ routes
     .post('/updatecartcount', tryCatch(usercartcontroller.updatecartcount))
     .delete('/cartdelete', tryCatch(usercartcontroller.deletcartitem))
 
+//wishlist routers
+
+    .post('/wishlist',tryCatch(wislistcontorller.wishlistadd))
+    .delete('/wishlistremive',tryCatch(wislistcontorller.remiveiteminwishlist))
+    .get('/whislistget',tryCatch(wislistcontorller.getwishlist))
 
  module.exports = routes

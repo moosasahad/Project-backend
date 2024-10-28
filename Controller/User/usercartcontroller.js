@@ -11,7 +11,7 @@ const addcart = async (req,res)=>{
  
     
     let carts = await cart.findOne({user});
-    console.log("fdaf",carts);   
+    console.log("fdaf",carts); 
 
 if(carts){
     const exitingproduct = carts.product.find((item)=>{
