@@ -5,7 +5,8 @@ const tryCatch = require("../Middleware/trycatch");
 const userproductcontrooler = require('../Controller/User/userproductcontrooler')
 const usercartcontroller = require("../Controller/User/usercartcontroller")
 const wislistcontorller = require("../Controller/User/wislistcontorller");
-const wishlistSchema = require("../Models/Schema/wishlistSchema");
+const orderProduct = require("../Controller/User/ordercontroller")
+const {refreshAccessToken} = require("../Controller/User/Refresh-token")
 
 routes
 
@@ -34,5 +35,12 @@ routes
     .post('/wishlist',tryCatch(wislistcontorller.wishlistadd))
     .delete('/wishlistremive',tryCatch(wislistcontorller.remiveiteminwishlist))
     .get('/whislistget',tryCatch(wislistcontorller.getwishlist))
+
+// orer ----
+
+    // .post('/order',tryCatch(orderProduct.orderProduct))
+
+//refresh token........
+     .post("/refreshtoken",refreshAccessToken)
 
  module.exports = routes
