@@ -1,31 +1,31 @@
-const jwt=require("jsonwebtoken");
-const refreshAccessToken=async(req,res)=>{
-    const refreshToken= req.cookies.refreshToken
-    if(!refreshToken){
-       return res.status(404).send("refresh token missing")
+const jwt = require("jsonwebtoken");
+
+const refreshAccessToken = async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+        return res.status(404).send("Refresh token missing");
     }
-    jwt.verify(refreshToken,process.env.JWT_TOKEN,(error,user)=>{
-        if(error){
+
+    jwt.verify(refreshToken, process.env.JWT_TOKEN, (error, user) => {
+        if (error) {
             return res.status(403).send("Refresh token is invalid");
         }
 
-const accessToken=jwt.sign(
-    {id:user.id,username:user.username,email:user.email},
-    process.env.JWT_TOKEN,
-    { expiresIn: "30m" } 
-)
-res.cookie('token', accessToken, {
-    httpOnly: true,    
-    secure: true,      
-    maxAge:  1 * 60 * 1000,
-    sameSite: 'lax',   
-});
+        const accessToken = jwt.sign(
+            { id: user.id, username: user.username, email: user.email },
+            process.env.JWT_TOKEN,
+            { expiresIn: "30m" }
+        );
 
-res.status(200).json({ accessToken: accessToken });
-        
-    })
+        res.cookie("token", accessToken, {
+            httpOnly: true,
+            secure: true,
+            maxAge: 30 * 60 * 1000, // 30 minutes
+            sameSite: "lax",
+        });
 
-}
+        return res.status(200).json({ accessToken });
+    });
+};
 
-
-module.exports={refreshAccessToken}
+module.exports = { refreshAccessToken };

@@ -4,6 +4,11 @@ const mongoose =require("mongoose");
 const errorhandler = require("./Middleware/errorhandler")
 const app = express()
 const userrout =require('./Routes/userroutes')
+const cookieParser = require('cookie-parser');
+
+
+
+app.use(cookieParser())
 app.use(express.json())
 app.use(errorhandler)
 

@@ -7,6 +7,7 @@ const usercartcontroller = require("../Controller/User/usercartcontroller")
 const wislistcontorller = require("../Controller/User/wislistcontorller");
 const orderProduct = require("../Controller/User/ordercontroller")
 const {refreshAccessToken} = require("../Controller/User/Refresh-token")
+const {userAuthMiddleware} = require("../Middleware/Authentication")
 
 routes
 
@@ -25,17 +26,16 @@ routes
 
 // user cart contorller
 
-    .post('/addcart',tryCatch(usercartcontroller.addcart))
-    .get('/getcart',tryCatch(usercartcontroller.getcartproduct))
-    .post('/updatecartcount', tryCatch(usercartcontroller.updatecartcount))
-    .delete('/cartdelete', tryCatch(usercartcontroller.deletcartitem))
+    .post('/addcart',userAuthMiddleware,tryCatch(usercartcontroller.addcart))
+    .get('/getcart',userAuthMiddleware,tryCatch(usercartcontroller.getcartproduct))
+    .post('/updatecartcount',userAuthMiddleware,tryCatch(usercartcontroller.updatecartcount))
+    .delete('/cartdelete',userAuthMiddleware,tryCatch(usercartcontroller.deletcartitem))
 
 //wishlist routers
 
-    .post('/wishlist',tryCatch(wislistcontorller.wishlistadd))
-    .delete('/wishlistremive',tryCatch(wislistcontorller.remiveiteminwishlist))
-    .get('/whislistget',tryCatch(wislistcontorller.getwishlist))
-
+    .post('/wishlist',userAuthMiddleware,tryCatch(wislistcontorller.wishlistadd))
+    .delete('/wishlistremive',userAuthMiddleware,tryCatch(wislistcontorller.remiveiteminwishlist))
+    .get('/whislistget',userAuthMiddleware,tryCatch(wislistcontorller.getwishlist))
 // orer ----
 
     // .post('/order',tryCatch(orderProduct.orderProduct))
