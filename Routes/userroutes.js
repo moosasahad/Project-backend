@@ -19,7 +19,7 @@ routes
 
 // productcontroller get,post
  
-    .post("/product",tryCatch(userproductcontrooler.addproduct))
+    .post("/product",userAuthMiddleware,tryCatch(userproductcontrooler.addproduct))
     .get('/product',tryCatch(userproductcontrooler.getallproducts))
     .get('/product/:type',tryCatch(userproductcontrooler.getproductbytype))
     .get('/productid/:id',tryCatch(userproductcontrooler.getproductbyid))
@@ -38,9 +38,13 @@ routes
     .get('/whislistget',userAuthMiddleware,tryCatch(wislistcontorller.getwishlist))
 // orer ----
 
-    // .post('/order',tryCatch(orderProduct.orderProduct))
-
+    .post('/order',userAuthMiddleware,tryCatch(orderProduct.orderProduct))
+    .get('/getallorders',userAuthMiddleware,tryCatch(orderProduct.getallorders))
+    .post('/ordercancel/:id',userAuthMiddleware,tryCatch(orderProduct.canselorder))
+    .post('/verifyOrder/:id',userAuthMiddleware,tryCatch(orderProduct.verifyOrder))
+    
 //refresh token........
      .post("/refreshtoken",refreshAccessToken)
+
 
  module.exports = routes

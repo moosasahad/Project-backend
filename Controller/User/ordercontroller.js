@@ -1,39 +1,102 @@
-// const Order  =require("../../Models/Schema/orderschema")
-// const CustomError = require('../../utils/customError')
-// const Cart = require('../../Models/Schema/cartSchema')
+const Order = require("../../Models/Schema/orderschema");
+const CustomError = require("../../utils/customError");
+const Cart = require("../../Models/Schema/cartSchema");
+const { v4: uuidv4 } = require("uuid");
 
-// const orderProduct = async (req,res,next) => {
-//     const {user} = req.body;
+const orderProduct = async (req, res, next) => {
+  const user = req.user.id;
 
-//     const usercart = Cart.findOne({user}).populate("product.productId")
-//     if(!usercart){
-//         return next(CustomError("user cart not found",404))
-//     }
-//     const totalprice = Math.round(
-//         usercart.product.reduce((total,item)=>{
-//             const price = parseFloat(item.product.new_price);
-//             const quantity = parseInt(item.guantity);
-//             if(isNaN(price) || isNaN(quantity)){
-//                 return next(CustomError('invalid product price or quantity'))
+  console.log("shahid", user);
 
-//             }
-//             return total + price * quantity;
-//         },0)
-        
-//     )
-//     const newOrder = new Order({
-//         userId: req.user.id,
-//         products: usercart.product,
-//         sessionId: 23452343,
-//         amount: totalprice,
-//         paymentStatus: 'pending'
-//     });
-//     const savedOrder = await newOrder.save();
-//     await Cart.findOneAndUpdate({ user }, { $set: { products: [] } });
+  const usercart = await Cart.findOne({ user: req.user.id }).populate(
+    "product.productId"
+  );
+  if (!usercart) {
+    return next(new CustomError("User cart not found", 404));
+  }
+  const totalprice = Math.round(
+    usercart.product.reduce((total, item) => {
+      const price = parseFloat(item.productId.price);
+      console.log("price", price);
 
-//     res.status(200).json({ savedOrder });
-// }
+      const quantity = parseInt(item.productId.qty);
+      console.log("quantity", quantity);
 
-// module.exports ={
-//     orderProduct,
-// }
+      if (isNaN(price) || isNaN(quantity)) {
+        return next(new CustomError("Invalid product price or quantity"));
+      }
+      return total + price * quantity;
+    }, 0)
+  );
+  const sessionId = uuidv4();
+  const neworder = new Order({
+    userId: user,
+    product: usercart.product,
+    sessionId: sessionId,
+    amount: totalprice,
+    paymentStatus: "pending",
+  });
+  const saveorder = await neworder.save();
+
+  res.send(usercart);
+};
+
+// get all orders .......
+
+const getallorders = async (req, res, next) => {
+  const allorders = await Order.find({ userId: req.user.id }).populate(
+    "product.productId"
+  );
+
+  if (!allorders || allorders.length === 0) {
+    return next(new CustomError("No orders found", 404));
+  }
+  res.status(200).json(allorders);
+};
+
+// verifyorder .....
+
+const verifyOrder = async (req, res, next) => {
+  const order = await Order.findOne({ userId: req.params.id });
+  console.log("Order ID:", req.params.id);
+
+  if (!order) {
+    return next(new CustomError("Order with this ID is not found", 404));
+  }
+  if (order.paymentStatus === "completed") {
+    return res.status(400).json("Product already updated");
+  }
+  order.paymentStatus = "completed";
+  order.shippingStatus = "Processing";
+
+  await order.save();
+
+  res.status(200).json("Order successfully updated");
+};
+
+// cansel order ...
+
+const canselorder = async (req, res, next) => {
+  const order = await Order.findOne({ userId: req.params.id });
+  console.log("Order ID:", req.params.id);
+
+  if (!order) {
+    return next(new CustomError("Order with this ID is not found", 404));
+  }
+  if (order.paymentStatus === "completed") {
+    return res.status(400).json("Cannot cancel this order, already paid");
+  }
+  order.paymentStatus = "cancelled";
+  order.shippingStatus = "cancelled";
+
+  await order.save();
+
+  res.status(200).json("Order successfully cancelled");
+};
+
+module.exports = {
+  orderProduct,
+  getallorders,
+  canselorder,
+  verifyOrder,
+};

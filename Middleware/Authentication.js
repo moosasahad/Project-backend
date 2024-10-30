@@ -1,22 +1,3 @@
-// const jwt = require("jsonwebtoken")
-// const CustomError = require('../utils/customError')
-
-// const userAuthMiddleware = async (req,res,next)=>{
-//     const authheader = req.headers["authorization"];
-//     const token = authheader && authheader.split(' ')[1]||req.cookies.token 
-
-//     if(!token){
-//         const refreshtoken = req.Cookies?.refreshtoken;
-
-//         if (!refreshtoken) {
-//             return next(new CustomError('No token or refresh token', 403));
-//         }
-//         try{
-//             const decoded = jwt.varify(refreshtoken, process.env.JWT_REFRESH_KEY)
-//         }
-//     }
-
-// }
 
 const jwt=require("jsonwebtoken");
 
@@ -27,7 +8,7 @@ const userAuthMiddleware = async (req, res, next) => {
         
       //   const token = authHeader && authHeader.split(' ')[1]
       const token=req.cookies.token
-      console.log(token)
+      console.log("nihal",token)
      if(!token){
       return res.status(401).send("Authentication token missing");
      }
@@ -39,7 +20,7 @@ const userAuthMiddleware = async (req, res, next) => {
                 res.send(err)
             }else{
                 req.user=user
-                console.log(req.user);
+                console.log('aslah',req.user);
                 
                 next()
             }

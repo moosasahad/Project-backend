@@ -4,7 +4,8 @@ const CustomError = require('../../utils/customError')
 // add product to wishlist
 
 const wishlistadd = async (req,res,next)=>{
-    const {user,productId} = req.body;
+    const {productId} = req.body;
+    const user = req.user.id
 
     let wishuser =await wishlist.findOne({user})
     console.log(wishuser);
@@ -32,7 +33,8 @@ const wishlistadd = async (req,res,next)=>{
 // remove product in wishlist
 
 const remiveiteminwishlist = async (req, res, next) => {
-    const { user, productId } = req.body;
+    const { productId } = req.body;
+    const user = req.user.id
 
     let wishlistuser = await wishlist.findOne({ user });
 
@@ -50,7 +52,8 @@ const remiveiteminwishlist = async (req, res, next) => {
 // get wishlist product
 
 const getwishlist = async (req,res,next)=>{
-    const {user,productId} = req.body;
+    const {productId} = req.body;
+    const user = req.user.id
 
     const whislisted =await wishlist.findOne({user}).populate('product')
     if(!whislisted){

@@ -5,9 +5,11 @@ const CustomError = require("../../utils/customError")
 // addcart product --- 
 
 const addcart = async (req,res)=>{
-    console.log("body",req.body);
+    // console.log("body",req.body);
+    const user = req.user.id;
+    console.log("user in cart",user);
     
-    const {productId,user} = req.body;
+    const {productId} = req.body;
  
     
     let carts = await cart.findOne({user});
@@ -16,7 +18,6 @@ const addcart = async (req,res)=>{
 if(carts){
     const exitingproduct = carts.product.find((item)=>{
         return item.productId==productId
-  
     })
     
 if(exitingproduct){
@@ -45,7 +46,7 @@ if(exitingproduct){
 // get all cart products
 
 const getcartproduct = async (req,res,next)=>{
-    const {user} = req.body;
+    const user = req.user.id;
     
     
     const product =await cart.findOne({user}).populate('product.productId');
@@ -60,7 +61,8 @@ const getcartproduct = async (req,res,next)=>{
 
 
 const updatecartcount = async (req,res,next ) => {
-    const {productId, action,user } = req.body;
+    const user = req.user.id
+    const {productId, action,} = req.body;
     
     
     const cartdata = await cart.findOne({user}).populate('product.productId');
@@ -93,7 +95,8 @@ res.status(200).json({ message: `Quantity ${action === "increment" ? "increased"
 // delete cart item 
 
 const deletcartitem = async (req,res,next)=>{
-    const {user,productId} = req.body;
+    const user = req.user.id;
+    const {productId} = req.body;
     
     const product = await cart.findOne({user}).populate('product.productId');
 
