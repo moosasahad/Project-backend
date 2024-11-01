@@ -1,11 +1,11 @@
 const user = require("../Models/Schema/userschema");
-const { JoiUserSchema } = require("../Models/joiSchema/validation");
+const joischema = require("../Models/joiSchema/validation");
 const bcrypt = require("bcrypt");
 const CustomError = require("../utils/customError");
 const jwt = require("jsonwebtoken");
 
 const userRg = async (req, res, next) => {
-  const { value, error } = JoiUserSchema.validate(req.body);
+  const { value, error } = joischema.JoiUserSchema.validate(req.body);
   const { name, email, number, password, confirmpassword } = value;
 
   if (error) {
@@ -19,7 +19,6 @@ const userRg = async (req, res, next) => {
   const newuser = new user({
     name,
     password: hashedpassword,
-    confirmpassword: hashedpassword,
     number,
     email,
   });
@@ -34,20 +33,45 @@ const userRg = async (req, res, next) => {
 //user login----
 
 const userlogin = async (req, res, next) => {
-  const { value, error } = JoiUserSchema.validate(req.body);
+  const { value, error } = joischema.loginSchema.validate(req.body);
   if (error) {
     return next(
       new CustomError("Validation error: " + error.details[0].message, 400)
     );
   }
 
-  const { name, password } = value;
+  const { email, password } = value;
 
-  // user login and jwt token
+  // admin login
 
-  const loginuser = await user.findOne({ name });
-  console.log(loginuser);
-  console.log("name", name);
+  const admin = await user.findOne({adminemail:email})
+  
+    if(admin){ 
+      console.log("admin logined");
+      const token = jwt.sign({
+        id:admin._id,admin:true},process.env.JWT_TOKEN,{expiresIn:'1m'}
+      );
+      const refreshToken = jwt.sign(
+        {id:admin._id, admin:true},process.env.JWT_TOKEN,{expiresIn:'1d'}
+      );
+      res.cookie("token",token,{
+            httpOnly: true,     
+            secure: false, 
+            sameSite: "none", 
+            maxAge: 30 * 60 * 1000 
+      })
+      res.cookie("refreshToken",refreshToken, {
+        httpOnly: true, 
+            secure: false, 
+            sameSite: "none", 
+            maxAge: 1 * 24 * 60 * 60 * 1000 
+      })
+       res.status(200).json({ admin: true, message:"admin logined" });
+       res.end()
+    }else{
+       // user login and jwt token
+
+  const loginuser = await user.findOne({email:email});
 
   if (!loginuser) {
     return next(new CustomError("loginuser not found", 404));
@@ -56,17 +80,22 @@ const userlogin = async (req, res, next) => {
   if (!password_match) {
     return next(new CustomError("password is wrong", 404));
   }
+
+
+  
   let token = jwt.sign(
-    { id: loginuser._id, username: loginuser.username, email: loginuser.email },
+    { id: loginuser._id, name: loginuser.name, email: loginuser.email },
     process.env.JWT_TOKEN,
     { expiresIn: "1m" }
   );
   const refreshToken = jwt.sign(
-    { id: loginuser._id, username: loginuser.username, email: loginuser.email },
+    { id: loginuser._id, name: loginuser.name, email: loginuser.email },
     process.env.JWT_TOKEN,
     { expiresIn: "7d" }
   );
   console.log("tokendnd", token);
+  console.log("user logined");
+  
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -80,7 +109,10 @@ const userlogin = async (req, res, next) => {
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: "lax",
   });
-  res.status(200).json({ status: "success", message: "Logged in successfully" });
+  res.status(200).json({ status: "success", message: "user Logged in successfully" });
+    }
+
+ 
 };
 
 // logout................
@@ -90,10 +122,10 @@ const userlogout = async (req, res, next) => {
         res.clearCookie("token","refreshToken",{
             httpOnly:true,
             secure:true,
-            sameSite:"none"
+            sameSite:"none"    
         })
         
-        console.log("hello")
+        console.log("logouted")
         res.status(200).json({status:"success",message:"logout successfully"})
     } catch (error) {
         res.status(404).send("logout failed",error)
@@ -101,8 +133,26 @@ const userlogout = async (req, res, next) => {
     }
 };
 
+// get user in admin side
+
+const getallusersinadmin = async (req,res,next)=>{
+
+  const alluser = await user.find({ admin: { $ne: true } })
+  res.json({message:"getd all user",alluser})
+
+}
+
+const getspscificser = async (req,res,next) =>{
+  const {id} = req.params.id;
+  const spcificuser = await user.findOne({id})
+  res.json({message:"getd spacific user",spcificuser})
+
+}
+ 
 module.exports = {
   userRg,
   userlogin,
   userlogout,
+  getallusersinadmin,
+  getspscificser,
 };

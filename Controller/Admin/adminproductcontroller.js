@@ -2,16 +2,16 @@ const product = require("../../Models/Schema/ProductSchema")
 
 
 
-// const addproduct = async (req,res)=>{
+const addproduct = async (req,res)=>{
     
-//     const {name,type,image,price,offerprice,qty,description,brand,rating,reviews} = req.body
+    const {name,type,image,price,offerprice,qty,description,brand,rating,reviews} = req.body
 
-//     const newuser = new product({
-//         name,type,image,price,offerprice,qty,description,brand,rating,reviews
-//     })
-//    await newuser.save()
-//     res.status(200).json("product added")
-// }
+    const newuser = new product({
+        name,type,image,price,offerprice,qty,description,brand,rating,reviews
+    })
+   await newuser.save()
+    res.status(200).json("product added")
+}
 const getallproducts = async (req,res)=>{
     const producted =await product.find()
    await res.send(producted)
@@ -32,7 +32,7 @@ const getproductbyid = async (req, res,) => {
 
 
 module.exports={
-    // addproduct,
+    addproduct,
     getallproducts,
     getproductbytype,
     getproductbyid,

@@ -7,7 +7,7 @@ const usercartcontroller = require("../Controller/User/usercartcontroller")
 const wislistcontorller = require("../Controller/User/wislistcontorller");
 const orderProduct = require("../Controller/User/ordercontroller")
 const {refreshAccessToken} = require("../Controller/User/Refresh-token")
-const {userAuthMiddleware} = require("../Middleware/Authentication")
+const Authentication = require("../Middleware/Authentication")
 
 routes
 
@@ -19,29 +19,29 @@ routes
 
 // productcontroller get,post
  
-    .post("/product",userAuthMiddleware,tryCatch(userproductcontrooler.addproduct))
+    // .post("/product",Authentication.userAuthMiddleware,tryCatch(userproductcontrooler.addproduct))
     .get('/product',tryCatch(userproductcontrooler.getallproducts))
     .get('/product/:type',tryCatch(userproductcontrooler.getproductbytype))
     .get('/productid/:id',tryCatch(userproductcontrooler.getproductbyid))
 
 // user cart contorller
 
-    .post('/addcart',userAuthMiddleware,tryCatch(usercartcontroller.addcart))
-    .get('/getcart',userAuthMiddleware,tryCatch(usercartcontroller.getcartproduct))
-    .post('/updatecartcount',userAuthMiddleware,tryCatch(usercartcontroller.updatecartcount))
-    .delete('/cartdelete',userAuthMiddleware,tryCatch(usercartcontroller.deletcartitem))
+    .post('/addcart',Authentication.userAuthMiddleware,tryCatch(usercartcontroller.addcart))
+    .get('/getcart',Authentication.userAuthMiddleware,tryCatch(usercartcontroller.getcartproduct))
+    .post('/updatecartcount',Authentication.userAuthMiddleware,tryCatch(usercartcontroller.updatecartcount))
+    .delete('/cartdelete',Authentication.userAuthMiddleware,tryCatch(usercartcontroller.deletcartitem))
 
 //wishlist routers
 
-    .post('/wishlist',userAuthMiddleware,tryCatch(wislistcontorller.wishlistadd))
-    .delete('/wishlistremive',userAuthMiddleware,tryCatch(wislistcontorller.remiveiteminwishlist))
-    .get('/whislistget',userAuthMiddleware,tryCatch(wislistcontorller.getwishlist))
+    .post('/wishlist',Authentication.userAuthMiddleware,tryCatch(wislistcontorller.wishlistadd))
+    .delete('/wishlistremive',Authentication.userAuthMiddleware,tryCatch(wislistcontorller.remiveiteminwishlist))
+    .get('/whislistget',Authentication.userAuthMiddleware,tryCatch(wislistcontorller.getwishlist))
 // orer ----
 
-    .post('/order',userAuthMiddleware,tryCatch(orderProduct.orderProduct))
-    .get('/getallorders',userAuthMiddleware,tryCatch(orderProduct.getallorders))
-    .post('/ordercancel/:id',userAuthMiddleware,tryCatch(orderProduct.canselorder))
-    .post('/verifyOrder/:id',userAuthMiddleware,tryCatch(orderProduct.verifyOrder))
+    .post('/order',Authentication.userAuthMiddleware,tryCatch(orderProduct.orderProduct))
+    .get('/getallorders',Authentication.userAuthMiddleware,tryCatch(orderProduct.getallorders))
+    .post('/ordercancel/:id',Authentication.userAuthMiddleware,tryCatch(orderProduct.canselorder))
+    .post('/verifyOrder/:id',Authentication.userAuthMiddleware,tryCatch(orderProduct.verifyOrder))
     
 //refresh token........
      .post("/refreshtoken",refreshAccessToken)

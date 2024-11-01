@@ -3,10 +3,6 @@ const jwt=require("jsonwebtoken");
 
 const userAuthMiddleware = async (req, res, next) => {
     try {
-      // console.log(res.cookie.token)
-      // const authHeader = req.headers['authorization'];
-        
-      //   const token = authHeader && authHeader.split(' ')[1]
       const token=req.cookies.token
       console.log("nihal",token)
      if(!token){
@@ -34,6 +30,7 @@ const userAuthMiddleware = async (req, res, next) => {
         res.send(error)
       }
     };
+    // const adminAuthMiddleware
     
 
 

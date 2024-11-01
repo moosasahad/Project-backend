@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.ObjectId, ref: 'user', required: true },
+    userId: { type: mongoose.Schema.ObjectId, ref: 'users', required: true },
     product: [{
         productId: { type: mongoose.Schema.ObjectId, ref: 'Product', required: true },
         quantity: { type: Number, required: true, default: 1 },
@@ -14,3 +14,4 @@ const orderSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("order", orderSchema);
+ 

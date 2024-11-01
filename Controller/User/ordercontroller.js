@@ -46,7 +46,7 @@ const orderProduct = async (req, res, next) => {
 const getallorders = async (req, res, next) => {
   const allorders = await Order.find({ userId: req.user.id }).populate(
     "product.productId"
-  );
+  )
 
   if (!allorders || allorders.length === 0) {
     return next(new CustomError("No orders found", 404));
