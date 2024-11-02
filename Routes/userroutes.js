@@ -6,7 +6,7 @@ const userproductcontrooler = require('../Controller/User/userproductcontrooler'
 const usercartcontroller = require("../Controller/User/usercartcontroller")
 const wislistcontorller = require("../Controller/User/wislistcontorller");
 const orderProduct = require("../Controller/User/ordercontroller")
-const {refreshAccessToken} = require("../Controller/User/Refresh-token")
+const refreshAccessToken = require("../Controller/User/Refresh-token")
 const Authentication = require("../Middleware/Authentication")
 
 routes
@@ -45,7 +45,7 @@ routes
     .post('/verifyOrder/:id',Authentication.userAuthMiddleware,tryCatch(orderProduct.verifyOrder))
     
 //refresh token........
-     .post("/refreshtoken",refreshAccessToken)
+     .post("/refreshtoken",refreshAccessToken.refreshAccessToken)
 
 
  module.exports = routes

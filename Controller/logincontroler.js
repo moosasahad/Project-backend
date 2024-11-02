@@ -48,19 +48,19 @@ const userlogin = async (req, res, next) => {
   
     if(admin){ 
       console.log("admin logined");
-      const token = jwt.sign({
-        id:admin._id,admin:true},process.env.JWT_TOKEN,{expiresIn:'1m'}
+      const admintoken = jwt.sign({
+        id:admin._id,admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'1m'}
       );
-      const refreshToken = jwt.sign(
-        {id:admin._id, admin:true},process.env.JWT_TOKEN,{expiresIn:'1d'}
+      const adminrefreshToken = jwt.sign(
+        {id:admin._id, admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'1d'}
       );
-      res.cookie("token",token,{
+      res.cookie("admintoken",admintoken,{
             httpOnly: true,     
             secure: false, 
             sameSite: "none", 
             maxAge: 30 * 60 * 1000 
       })
-      res.cookie("refreshToken",refreshToken, {
+      res.cookie("adminrefreshToken",adminrefreshToken, {
         httpOnly: true, 
             secure: false, 
             sameSite: "none", 
