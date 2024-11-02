@@ -28,7 +28,9 @@ routes
     .get("/totalrevannu",tryCatch(oredrdetails.TotalRevenew))
 // product add update delet
 
-.get("/addproduct",upload.single('image'),tryCatch(productcontroller.addproduct)) 
+    .post("/addproduct",upload.single('image'),tryCatch(productcontroller.addproduct))
+    .post("/editproduct/:id",upload.single('image'),tryCatch(productcontroller.editproduct))
+    .delete("/deletproduct/:id",tryCatch(productcontroller.deletproduct))    
 
 
 

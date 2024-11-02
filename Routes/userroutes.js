@@ -30,6 +30,7 @@ routes
     .get('/getcart',Authentication.userAuthMiddleware,tryCatch(usercartcontroller.getcartproduct))
     .post('/updatecartcount',Authentication.userAuthMiddleware,tryCatch(usercartcontroller.updatecartcount))
     .delete('/cartdelete',Authentication.userAuthMiddleware,tryCatch(usercartcontroller.deletcartitem))
+    .delete('/clearcart',Authentication.userAuthMiddleware,tryCatch(usercartcontroller.deletallproduct))
 
 //wishlist routers
 

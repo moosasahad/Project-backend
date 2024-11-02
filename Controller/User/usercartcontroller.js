@@ -20,8 +20,15 @@ const addcart = async (req, res) => {
       exitingproduct.quantity += 1;
       res.status(201).json("product quantity increased");
     } else {
-      carts.product.push({ productId: productId, quantity: 1 });
-      res.status(200).json("new product added in same user");
+      const datad = carts.product.push({ productId: productId, quantity: 1 });
+      await carts.save();
+
+      const updatedCart = await carts.populate("product.productId");
+
+      res.status(200).json({
+        message: "New product added for the same user",
+        cart: updatedCart,
+      });
     }
     await carts.save();
   }
@@ -57,6 +64,8 @@ const updatecartcount = async (req, res, next) => {
   const { productId, action } = req.body;
 
   const cartdata = await cart.findOne({ user }).populate("product.productId");
+  console.log("cartdata",cartdata);
+  
 
   if (!cartdata) {
     return next(new CustomError("product with this id is not found", 404));
@@ -64,6 +73,8 @@ const updatecartcount = async (req, res, next) => {
   const cartProduct = cartdata.product.find(
     (item) => item.productId._id.toString() == productId
   );
+  console.log("cartProduct",cartProduct);
+  
 
   if (!cartProduct) {
     return next(new CustomError("product not found in cart", 404));
@@ -80,38 +91,62 @@ const updatecartcount = async (req, res, next) => {
     }
   }
   await cartdata.save();
-  res
-    .status(200)
-    .json({
-      message: `Quantity ${
-        action === "increment" ? "increased" : "decreased"
-      } successfully`,
-    });
+  res.status(200).json({
+    message: `Quantity ${
+      action === "increment" ? "increased" : "decreased"
+    } successfully`,
+  });
 };
 
 // delete cart item
 
 const deletcartitem = async (req, res, next) => {
-  const user = req.user.id;
-  const { productId } = req.body;
+    const userId = req.user.id;
+    const { productId } = req.body;
+  
+      // Find the user's cart and populate the products
+      const carte = await cart.findOne({ user: userId }).populate("product.productId");
+  
+      if (!carte) {
+        return next(new CustomError("Cart not found", 404));
+      }
+  
+      const updatedProducts = carte.product.filter(
+        (item) => item.productId._id.toString() !== productId
+      )
+      carte.product = updatedProducts;
+      await carte.save();
+  
+      res.status(200).json({ message: "Product deleted from cart" });
+  };
 
-  const product = await cart.findOne({ user }).populate("product.productId");
+  
+// clear cart
 
-  if (!product) {
-    return next(new CustomError("cart not found", 404));
-  }
+const deletallproduct = async (req, res, next) => {
+    const userId = req.user.id;
 
-  const flterproduct = product.product.filter(
-    (item) => item.productId._id.toString() !== productId
-  );
-  product.product = flterproduct;
-  product.save();
-  res.status(201).json("product deleted");
+    // Find the cart for the user and populate the products
+    const carte = await cart.findOne({ user: userId }).populate("product.productId");
+    if (!carte) {
+        return next(new CustomError("Cart not found", 404));
+    }
+
+    // Clear the product array in the cart
+    carte.product = [];
+
+    // Save the updated cart
+    await carte.save();
+
+    res.json({ message: "Cart cleared" });
 };
+
+
 
 module.exports = {
   addcart,
   updatecartcount,
   getcartproduct,
   deletcartitem,
+  deletallproduct
 };

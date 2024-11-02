@@ -3,10 +3,11 @@ const CustomError = require("../../utils/customError");
 const Cart = require("../../Models/Schema/cartSchema");
 const { v4: uuidv4 } = require("uuid");
 
+//create new orer
+
 const orderProduct = async (req, res, next) => {
   const user = req.user.id;
 
-  console.log("shahid", user);
 
   const usercart = await Cart.findOne({ user: req.user.id }).populate(
     "product.productId"
@@ -57,11 +58,13 @@ const getallorders = async (req, res, next) => {
 // verifyorder .....
 
 const verifyOrder = async (req, res, next) => {
-  const order = await Order.findOne({ userId: req.params.id });
+  const order = await Order.findOne({ sessionId: req.params.id });
   console.log("Order ID:", req.params.id);
+  console.log("sessionId",order);
+  
 
   if (!order) {
-    return next(new CustomError("Order with this ID is not found", 404));
+    return next(new CustomError("Order with this sessionId is not found", 404));
   }
   if (order.paymentStatus === "completed") {
     return res.status(400).json("Product already updated");
@@ -77,7 +80,7 @@ const verifyOrder = async (req, res, next) => {
 // cansel order ...
 
 const canselorder = async (req, res, next) => {
-  const order = await Order.findOne({ userId: req.params.id });
+  const order = await Order.findOne({ sessionId: req.params.id });
   console.log("Order ID:", req.params.id);
 
   if (!order) {

@@ -4,8 +4,7 @@ const CustomError = require("../../utils/customError");
 
 const getallorders = async (req, res, next) => {
   const allorders = await Order.find().populate({
-    path: "product.productId",
-    select: "name price image type",
+    path: "product.productId"
   });
   res.status(200).json(allorders);
 };
