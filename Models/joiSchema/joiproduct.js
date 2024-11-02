@@ -10,7 +10,7 @@ const JoiProductSchema = Joi.object({
   description: Joi.string().optional(),
   brand: Joi.string(),
   rating: Joi.number().min(0).max(5).optional(),
-  reviews: Joi.array().items(Joi.string()).optional()
+  reviews: Joi.number().min(1).max(10).optional()
 });
 
 module.exports = { JoiProductSchema };

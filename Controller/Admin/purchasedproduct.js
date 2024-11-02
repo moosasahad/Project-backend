@@ -11,14 +11,13 @@ const getallorders = async (req, res, next) => {
 };
 
 // totalproductpurchased
+
 const totalorderproductcount = async (req, res, next) => {
-    try {
+
       const orders = await Order.find().populate({
         path: "product.productId",
         select: "name price image type",
       });
-  
-      // Calculate total product count
       const totalProductCount = orders.reduce((total, order) => {
         return total + order.product.reduce((orderTotal, item) => {
           return orderTotal + item.quantity;
@@ -26,9 +25,7 @@ const totalorderproductcount = async (req, res, next) => {
       }, 0);
   
       res.json({ message: "Total ordered product count", totalProductCount });
-    } catch (error) {
-      next(error);
-    }
+
   };
   
 
@@ -64,6 +61,7 @@ const TotalRevenew = async (req, res) => {
 
   res.status(200).json({ revenew: calculate[0].revenew });
 };
+
 
 module.exports = {
   getallorders,
