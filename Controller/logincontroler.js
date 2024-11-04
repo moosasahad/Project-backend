@@ -118,7 +118,6 @@ const userlogin = async (req, res, next) => {
 // logout................
 
 const userlogout = async (req, res, next) => {
-    try {
         res.clearCookie("token","refreshToken",{
             httpOnly:true,
             secure:true,
@@ -127,11 +126,20 @@ const userlogout = async (req, res, next) => {
         
         console.log("logouted")
         res.status(200).json({status:"success",message:"logout successfully"})
-    } catch (error) {
-        res.status(404).send("logout failed",error)
-        
-    }
 };
+
+// admin logout .......
+
+const adminlogout = async (req,res,next) => {
+    res.clearCookie("admintoken","adminrefreshToken",{
+        httpOnly:true,
+        secure:true,
+        sameSite:"none"    
+    })
+    
+    console.log("logouted")
+    res.status(200).json({status:"success",message:"admin logout successfully"})
+}
 
 // get user in admin side
 
@@ -148,11 +156,13 @@ const getspscificser = async (req,res,next) =>{
   res.json({message:"getd spacific user",spcificuser})
 
 }
+
  
 module.exports = {
   userRg,
   userlogin,
   userlogout,
+  adminlogout,
   getallusersinadmin,
   getspscificser,
 };

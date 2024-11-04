@@ -16,6 +16,7 @@ routes
     .post('/signup',tryCatch(logincontroler.userRg))
     .post('/login',tryCatch(logincontroler.userlogin))
     .post('/logut',tryCatch(logincontroler.userlogout))
+    .post('/adminlogut',tryCatch(logincontroler.adminlogout))
 
 // productcontroller get,post
  
@@ -46,6 +47,7 @@ routes
     
 //refresh token........
      .post("/refreshtoken",refreshAccessToken.refreshAccessToken)
+     
 
 
  module.exports = routes
