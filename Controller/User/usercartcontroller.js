@@ -4,8 +4,11 @@ const CustomError = require("../../utils/customError");
 // addcart product ---
 
 const addcart = async (req, res) => {
+  console.log("jfkhfjkghkf")
   // console.log("body",req.body);
-  const user = req.user.id;
+  const user = req.user.id; 
+  console.log("user",user);
+  
 
   const { productId } = req.body;
 
@@ -15,7 +18,7 @@ const addcart = async (req, res) => {
     const exitingproduct = carts.product.find((item) => {
       return item.productId == productId;
     });
-
+ 
     if (exitingproduct) {
       exitingproduct.quantity += 1;
       res.status(201).json("product quantity increased");

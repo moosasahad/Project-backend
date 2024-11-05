@@ -17,7 +17,7 @@ app.use(cors({
   origin: "http://localhost:3001" // Adjust this to the origin you need
 }));
 app.use(userrout);
-app.use("/admin",Adminroutes)
+app.use("/admin",Adminroutes) 
 mongoose.connect(process.env.MONGO_URL, {
     serverSelectionTimeoutMS: 30000, // Optional: Increase timeout if needed
   })

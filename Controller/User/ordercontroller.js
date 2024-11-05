@@ -8,7 +8,6 @@ const { v4: uuidv4 } = require("uuid");
 const orderProduct = async (req, res, next) => {
   const user = req.user.id;
 
-
   const usercart = await Cart.findOne({ user: req.user.id }).populate(
     "product.productId"
   );

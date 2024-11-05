@@ -55,7 +55,7 @@ const userlogin = async (req, res, next) => {
         {id:admin._id, admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'1d'}
       );
       res.cookie("admintoken",admintoken,{
-            httpOnly: true,     
+            httpOnly: true,      
             secure: false, 
             sameSite: "none", 
             maxAge: 30 * 60 * 1000 
@@ -86,7 +86,7 @@ const userlogin = async (req, res, next) => {
   let token = jwt.sign(
     { id: loginuser._id, name: loginuser.name, email: loginuser.email },
     process.env.JWT_TOKEN,
-    { expiresIn: "1m" }
+    { expiresIn: "1d" }
   );
   const refreshToken = jwt.sign(
     { id: loginuser._id, name: loginuser.name, email: loginuser.email },
@@ -100,7 +100,7 @@ const userlogin = async (req, res, next) => {
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,
-    maxAge: 1 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000,
     sameSite: "lax",
   });
   res.cookie("refreshToken", refreshToken, {
@@ -109,8 +109,8 @@ const userlogin = async (req, res, next) => {
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: "lax",
   });
-  res.status(200).json({ status: "success", message: "user Logged in successfully" });
-    }
+  res.status(200).json({ status: "success", message: "user Logged in successfully",name:loginuser,token});
+    } 
 
  
 };

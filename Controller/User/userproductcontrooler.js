@@ -12,7 +12,7 @@ const product = require("../../Models/Schema/ProductSchema")
 //    await newuser.save()
 //     res.status(200).json("product added")
 // }
-const getallproducts = async (req,res)=>{
+const getallproducts = async (req,res)=>{ 
     const producted =await product.find()
    await res.send(producted)
 }
