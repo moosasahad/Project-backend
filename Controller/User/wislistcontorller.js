@@ -16,6 +16,7 @@ const wishlistadd = async (req,res,next)=>{
         })
         await newlist.save()
         const list = await newlist.populate('product')
+
         return res.status(200).json({"massage":"product added whishlist",list});
     }
     const productExists = wishuser.product.find(product => product==productId)
@@ -26,7 +27,7 @@ const wishlistadd = async (req,res,next)=>{
         wishuser = await wishuser.populate('product');
         return res.status(200).json({"massage":"new product adde to same user",wishuser});
     }
-    res.send({"message":"products already added to the wishlist"})
+    res.send({"message":"products already added to the wishlist",wishuser})
     
 
 }

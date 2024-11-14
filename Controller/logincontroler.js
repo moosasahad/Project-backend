@@ -13,7 +13,7 @@ const userRg = async (req, res, next) => {
   }
 
   if (password !== confirmpassword) {
-    return next(new CustomError("Passwords do not match", 400));
+    return res.json(new CustomError("Passwords do not match", 400));
   }
   const hashedpassword = await bcrypt.hash(password, 6);
   const newuser = new user({
@@ -49,22 +49,22 @@ const userlogin = async (req, res, next) => {
     if(admin){ 
       console.log("admin logined");
       const admintoken = jwt.sign({
-        id:admin._id,admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'1m'}
+        id:admin._id,admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'1d'}
       );
       const adminrefreshToken = jwt.sign(
-        {id:admin._id, admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'1d'}
+        {id:admin._id, admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'2d'}
       );
       res.cookie("admintoken",admintoken,{
             httpOnly: true,      
             secure: false, 
             sameSite: "none", 
-            maxAge: 30 * 60 * 1000 
+            maxAge: 1 * 24 * 60 * 60 * 1000 
       })
       res.cookie("adminrefreshToken",adminrefreshToken, {
         httpOnly: true, 
             secure: false, 
             sameSite: "none", 
-            maxAge: 1 * 24 * 60 * 60 * 1000 
+            maxAge: 2 * 24 * 60 * 60 * 1000 
       })
        res.status(200).json({ admin: true, message:"admin logined" });
        res.end()
@@ -80,6 +80,11 @@ const userlogin = async (req, res, next) => {
   if (!password_match) {
     return next(new CustomError("password is wrong", 404));
   }
+  console.log("user status == ",loginuser.status);
+  
+  if(loginuser.status==true){
+    return next(new CustomError("user is blocked", 404));
+  }
 
 
   
@@ -93,19 +98,26 @@ const userlogin = async (req, res, next) => {
     process.env.JWT_TOKEN,
     { expiresIn: "7d" }
   );
+  let userse = loginuser
   console.log("tokendnd", token);
   console.log("user logined");
   
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: "lax",
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: true,
+    secure: false,
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: "lax",
+  });
+  res.cookie("users", JSON.stringify(userse), {
+    httpOnly: false,
+    secure: false,
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: "lax",
   });
@@ -118,28 +130,82 @@ const userlogin = async (req, res, next) => {
 // logout................
 
 const userlogout = async (req, res, next) => {
-        res.clearCookie("token","refreshToken",{
+        res.clearCookie("token",{
             httpOnly:true,
-            secure:true,
-            sameSite:"none"    
+            secure:false,
+            sameSite:"lax"    
         })
+        res.clearCookie("refreshToken",{
+          httpOnly:true,
+          secure:true,
+          sameSite:"none"    
+      })
+      res.clearCookie("users",{
+        httpOnly:true,
+        secure:true,
+        sameSite:"lax"    
+    })
         
-        console.log("logouted")
+        console.log("user logouted")
         res.status(200).json({status:"success",message:"logout successfully"})
 };
 
 // admin logout .......
 
 const adminlogout = async (req,res,next) => {
-    res.clearCookie("admintoken","adminrefreshToken",{
+    res.clearCookie("admintoken",{
         httpOnly:true,
         secure:true,
         sameSite:"none"    
     })
+    res.clearCookie("adminrefreshToken",{
+      httpOnly:true,
+      secure:true,
+      sameSite:"none"    
+  })
     
     console.log("logouted")
     res.status(200).json({status:"success",message:"admin logout successfully"})
 }
+
+const userblocking = async (req, res) => {
+  try {
+    const { userid } = req.body;
+    if (!userid) {
+      return res.status(400).send("User ID is required");
+    }
+    const users = await user.find({ _id: userid });
+
+    if(!users){
+      return res.status(400).send("User note found this id");
+    }
+    // const userstatus = users.find(item => item.status==false)
+    // console.log("userstatus",userstatus);
+    console.log("users.status==false",users.status==false) 
+    const userse = users[0]
+    if(userse.status==false){
+      userse.status = true
+      userse.save()
+      res.json({massage:"user blocked"}) 
+      
+    }else{
+      userse.status = false
+      userse.save()
+      res.json({massage:"user unblocked"})
+    }
+
+
+    console.log("user", userse.status);
+    console.log("userid", userid);
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Server Error");
+  }
+};
+
+
 
 // get user in admin side
 
@@ -165,4 +231,5 @@ module.exports = {
   adminlogout,
   getallusersinadmin,
   getspscificser,
+  userblocking,
 };

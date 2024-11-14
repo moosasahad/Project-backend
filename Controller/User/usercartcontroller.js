@@ -4,25 +4,32 @@ const CustomError = require("../../utils/customError");
 // addcart product ---
 
 const addcart = async (req, res) => {
-  console.log("jfkhfjkghkf")
   // console.log("body",req.body);
-  const user = req.user.id; 
-  console.log("user",user);
-  
+  const user = req.user.id;
+ 
 
   const { productId } = req.body;
 
   let carts = await cart.findOne({ user });
-
+  console.log('carts',carts)
+  console.log('productId1',productId)
   if (carts) {
     const exitingproduct = carts.product.find((item) => {
       return item.productId == productId;
     });
+    console.log('productId',exitingproduct)
+    // if(!exitingproduct){
+      
+    //   return (new CustomError("exitingproduct not found", 404));
+    // }
+    console.log("object existing",exitingproduct)
  
     if (exitingproduct) {
-      exitingproduct.quantity += 1;
+      
+      exitingproduct.quantity += 1; 
       res.status(201).json("product quantity increased");
     } else {
+      console.log("from add to cart")
       const datad = carts.product.push({ productId: productId, quantity: 1 });
       await carts.save();
 
@@ -44,6 +51,7 @@ const addcart = async (req, res) => {
     const cartsend = await newcart.populate("product.productId");
     return res.status(201).json(cartsend);
   }
+  
   return res.status(200).json({ message: "carte created" });
   // return res.status(200).json("cart created");
 };
@@ -54,11 +62,14 @@ const getcartproduct = async (req, res, next) => {
   const user = req.user.id;
 
   const product = await cart.findOne({ user }).populate("product.productId");
+  console.log("cart",product);
   if (!product) {
     return next(new CustomError("Cart not found", 400));
   }
+
+  
   res.status(200).json(product);
-};
+};     
 
 // update cart item count
 
@@ -71,7 +82,7 @@ const updatecartcount = async (req, res, next) => {
   
 
   if (!cartdata) {
-    return next(new CustomError("product with this id is not found", 404));
+    return (new CustomError("product with this id is not found", 404));
   }
   const cartProduct = cartdata.product.find(
     (item) => item.productId._id.toString() == productId
@@ -102,22 +113,26 @@ const updatecartcount = async (req, res, next) => {
 };
 
 // delete cart item
-
+         
 const deletcartitem = async (req, res, next) => {
     const userId = req.user.id;
     const { productId } = req.body;
+    console.log("hsajkdhsahdk cartdelete",productId);
+    
   
       // Find the user's cart and populate the products
-      const carte = await cart.findOne({ user: userId }).populate("product.productId");
+      const carte = await cart.findOne({ user: userId })
   
       if (!carte) {
         return next(new CustomError("Cart not found", 404));
       }
+      console.log("hsajkdhsahdk cartdelete2");
   
       const updatedProducts = carte.product.filter(
-        (item) => item.productId._id.toString() !== productId
+        (item) => item.productId != productId
       )
       carte.product = updatedProducts;
+      console.log("hsajkdhsahdk cartdelete3");
       await carte.save();
   
       res.status(200).json({ message: "Product deleted from cart" });
@@ -127,7 +142,9 @@ const deletcartitem = async (req, res, next) => {
 // clear cart
 
 const deletallproduct = async (req, res, next) => {
-    const userId = req.user.id;
+    const userId = req.user.id;   
+    console.log("cleared");
+    
 
     // Find the cart for the user and populate the products
     const carte = await cart.findOne({ user: userId }).populate("product.productId");

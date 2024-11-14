@@ -30,7 +30,7 @@ const editproduct = async (req,res,next)=>{
     if(error){
         new CustomError("Validation error: " + error.details[0].message, 400)
     }
-    const {name,type,price,offerprice,qty,description,brand,rating,reviews} = value;
+    // const {name,type,price,offerprice,qty,description,brand,rating,reviews} = value;
     const image = req.file?.path;
     const updateproduct = await product.findByIdAndUpdate(req.params.id, value, { new: true });
     if(!updateproduct){
@@ -40,10 +40,13 @@ const editproduct = async (req,res,next)=>{
 }
 
 const deletproduct = async (req,res)=>{
+    if(req.params.id.length!== 24){
+        res.status(401).json({status:"faild",message:"id is not valid"})
+    }
     const id = req.params.id;
     const deleteproduct = await product.findByIdAndDelete(id)
     if(!deleteproduct){
-        return res.json({message:'Product not found with this ID'})
+        return res.status(401).json({message:'Product not found with this ID'})
     }
     await cart.updateMany(
         {"product.productId":req.params.id},
@@ -57,3 +60,4 @@ module.exports={
     editproduct,
     deletproduct,
 }
+     

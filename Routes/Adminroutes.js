@@ -14,6 +14,7 @@ routes
 // get all users
     .get('/getuser',Authentication.adminAuthMiddleware,tryCatch(logincontroler.getallusersinadmin))
     .get('/getuser/:id',Authentication.adminAuthMiddleware,tryCatch(logincontroler.getspscificser))
+    .post('/useblock',Authentication.adminAuthMiddleware,tryCatch(logincontroler.userblocking))
 
 // product inadmin
 
