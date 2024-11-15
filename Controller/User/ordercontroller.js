@@ -55,7 +55,7 @@ const orderProduct = async (req, res, next) => {
           quantity: item.quantity
       };
   });
-  console.log("lineItems",lineItems);
+  // console.log("lineItems",lineItems);
   
 
     const stripeclint=new stripe(process.env.STRIPE_KEY)
@@ -66,9 +66,11 @@ const orderProduct = async (req, res, next) => {
         line_items: lineItems,           
         mode: 'payment',
         ui_mode:'embedded',
-        return_url: `${process.env.URL_FRONTEND}/success/{CHECKOUT_SESSION_ID}`,
+        return_url: `${process.env.URL_FRONTEND}/paymentpage`,
        
     });
+    console.log("session id",session.id);
+    
 
 
     const newOrder = new Order({
@@ -165,8 +167,8 @@ const verifyOrder = async (req, res, next) => {
 // cansel order ...
 
 const canselorder = async (req, res, next) => {
-  const order = await Order.findOne({ sessionId: req.params.id });
-  console.log("Order ID:", req.params.id);
+  const order = await Order.findOne({ sessionID: req.params.id });
+  console.log("Order ID:", order);
 
   if (!order) {
     return next(new CustomError("Order with this ID is not found", 404));
@@ -176,7 +178,7 @@ const canselorder = async (req, res, next) => {
   }
   order.paymentStatus = "cancelled";
   order.shippingStatus = "cancelled";
-
+         
   await order.save();
 
   res.status(200).json("Order successfully cancelled");

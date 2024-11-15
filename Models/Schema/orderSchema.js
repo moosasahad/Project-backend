@@ -1,3 +1,4 @@
+const { string } = require("joi");
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
@@ -9,9 +10,10 @@ const orderSchema = new mongoose.Schema({
     }],
     sessionId: { type: String },
     purchaseDate: { type: Date, default: Date.now },
+    sessionID:{type:String},
     amount: { type: Number, required: true },
     paymentStatus: { type: String, enum: ["pending", 'completed', "cancelled"], default: 'pending' },
-    shippingStatus: { type: String, enum: ["pending", 'completed', "cancelled", "Processing"], default: "pending" }
+    shippingStatus: { type: String, enum: ["pending", 'completed', "cancelled", "Processing"], default: "Processing" }
 });
 
 module.exports = mongoose.model("order", orderSchema);
