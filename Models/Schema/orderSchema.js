@@ -2,7 +2,7 @@ const { string } = require("joi");
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.ObjectId, ref: 'users', required: true },
+    userId: { type: mongoose.Schema.ObjectId, ref: 'user', required: true },
     
     product: [{
         productId: { type: mongoose.Schema.ObjectId, ref: 'Product', required: true },

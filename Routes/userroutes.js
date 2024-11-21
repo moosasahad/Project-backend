@@ -8,6 +8,7 @@ const wislistcontorller = require("../Controller/User/wislistcontorller");
 const orderProduct = require("../Controller/User/ordercontroller")
 const refreshAccessToken = require("../Controller/User/Refresh-token")
 const Authentication = require("../Middleware/Authentication")
+const serachcontroller = require("../Controller/User/serachcontroller")
 
 routes
 
@@ -38,6 +39,7 @@ routes
     .post('/wishlist',Authentication.userAuthMiddleware,tryCatch(wislistcontorller.wishlistadd))
     .delete('/wishlistremive',Authentication.userAuthMiddleware,tryCatch(wislistcontorller.remiveiteminwishlist))
     .get('/whislistget',Authentication.userAuthMiddleware,tryCatch(wislistcontorller.getwishlist))
+    .get('/counte',Authentication.userAuthMiddleware,tryCatch(wislistcontorller.count))
 // orer ----
 
     .post('/order',Authentication.userAuthMiddleware,tryCatch(orderProduct.orderProduct))
@@ -45,6 +47,8 @@ routes
     .post('/ordercancel/:id',Authentication.userAuthMiddleware,tryCatch(orderProduct.canselorder))
     .post('/verifyOrder/:id',Authentication.userAuthMiddleware,tryCatch(orderProduct.verifyOrder))
     
+    
+    .post('/serachcontroller',tryCatch(serachcontroller.searchcontroller))
 //refresh token........
      .post("/refreshtoken",refreshAccessToken.refreshAccessToken)
      

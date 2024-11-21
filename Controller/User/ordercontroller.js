@@ -55,7 +55,7 @@ const orderProduct = async (req, res, next) => {
           quantity: item.quantity
       };
   });
-  // console.log("lineItems",lineItems);
+  console.log("lineItems",lineItems);
   
 
     const stripeclint=new stripe(process.env.STRIPE_KEY)
@@ -66,7 +66,7 @@ const orderProduct = async (req, res, next) => {
         line_items: lineItems,           
         mode: 'payment',
         ui_mode:'embedded',
-        return_url: `${process.env.URL_FRONTEND}/paymentpage`,
+        return_url: `${process.env.URL_FRONTEND}/orders/{CHECKOUT_SESSION_ID}`,
        
     });
     console.log("session id",session.id);
@@ -132,20 +132,34 @@ const orderProduct = async (req, res, next) => {
 // get all orders .......
 
 const getallorders = async (req, res, next) => {
-  const allorders = await Order.find({ userId: req.user.id }).populate(
-    "product.productId"  
-  )
+  try {
+    // Fetch orders where userId matches the logged-in user's ID
+    const allorders = await Order.find({ userId: req.user.id }) // Find orders for the current user
+      .populate("userId", "-password") // Populate userId field, excluding password
+      .populate("product.productId") // Populate product details
+      .lean(); // Convert Mongoose documents to plain JavaScript objects
 
-  if (!allorders || allorders.length === 0) {
-    return next(new CustomError("No orders found", 404));
+    // Check if orders exist
+    if (!allorders || allorders.length === 0) {
+      return next(new CustomError("No orders found", 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Orders retrieved successfully",
+      orders: allorders,
+    });
+  } catch (error) {
+    // Handle unexpected errors
+    next(new CustomError("Failed to fetch orders", 500));
   }
-  res.status(200).json(allorders);
 };
+
 
 // verifyorder .....
 
 const verifyOrder = async (req, res, next) => {
-  const order = await Order.findOne({ sessionId: req.params.id });
+  const order = await Order.findOne({ sessionID: req.params.id });
   console.log("Order ID:", req.params.id);
   console.log("sessionId",order);
   
@@ -157,7 +171,7 @@ const verifyOrder = async (req, res, next) => {
     return res.status(400).json("Product already updated");
   }
   order.paymentStatus = "completed";
-  order.shippingStatus = "Processing";
+  order.shippingStatus = "Processing";   
 
   await order.save();
 
@@ -173,9 +187,9 @@ const canselorder = async (req, res, next) => {
   if (!order) {
     return next(new CustomError("Order with this ID is not found", 404));
   }
-  if (order.paymentStatus === "completed") {
-    return res.status(400).json("Cannot cancel this order, already paid");
-  }
+  // if (order.paymentStatus === "completed") {
+  //   return res.status(400).json("Cannot cancel this order, already paid");
+  // }
   order.paymentStatus = "cancelled";
   order.shippingStatus = "cancelled";
          
@@ -183,6 +197,10 @@ const canselorder = async (req, res, next) => {
 
   res.status(200).json("Order successfully cancelled");
 };
+
+const Addres = async (req,res,next) => {
+
+}
 
 module.exports = {
   orderProduct,

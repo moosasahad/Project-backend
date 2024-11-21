@@ -1,4 +1,5 @@
 const wishlist = require('../../Models/Schema/wishlistSchema')
+const Cart = require("../../Models/Schema/cartSchema")
 const CustomError = require('../../utils/customError')
 
 // add product to wishlist
@@ -63,8 +64,31 @@ const getwishlist = async (req,res,next)=>{
     res.status(200).json(whislisted);
     
 }
+
+const count = async (req, res, next) => {
+    try {
+      // Fetch the cart for the specific user
+      const cart = await Cart.findOne({ user: req.user.id });
+      
+      if (!cart) {
+        return res.status(404).send("Cart not found");
+      }
+  
+      // Count the number of unique products in the cart
+      const productCount = cart.product.length;
+  
+      console.log("Cart count:", productCount);
+  
+      res.json({ count: productCount });
+    } catch (error) {
+      console.error("Error counting cart products:", error);
+      res.status(500).send("Server Error");
+    }
+  };
+  
 module.exports= {
     wishlistadd,
     remiveiteminwishlist,
     getwishlist,
+    count,
 }

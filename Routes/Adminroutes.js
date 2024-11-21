@@ -30,8 +30,9 @@ routes
 // product add update delet
 
     .post("/addproduct",Authentication.adminAuthMiddleware,upload.single('image'),tryCatch(productcontroller.addproduct))
-    .post("/editproduct/:id",Authentication.adminAuthMiddleware,upload.single('image'),tryCatch(productcontroller.editproduct))
-    .delete("/deletproduct/:id",Authentication.adminAuthMiddleware,tryCatch(productcontroller.deletproduct))    
+    .patch("/editproduct/:id",Authentication.adminAuthMiddleware,upload.single('image'),tryCatch(productcontroller.editproduct))
+    .delete("/deletproduct/:id",Authentication.adminAuthMiddleware,tryCatch(productcontroller.deletproduct)) 
+    .get("/resenduser",Authentication.adminAuthMiddleware,tryCatch(oredrdetails.getmostusers))    
 
 // refreshAccessToken
 

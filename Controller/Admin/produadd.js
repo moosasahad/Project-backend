@@ -6,7 +6,9 @@ const cart = require("../../Models/Schema/cartSchema")
 
 const addproduct = async (req,res)=>{
     const {value,error} = JoiProductSchema.validate(req.body)
+console.log("value",value)
 
+    
     if(error){
         return res.status(400).json({ massage: "joi validation_error"});
     }
@@ -14,8 +16,16 @@ const addproduct = async (req,res)=>{
     const {name,type,price,offerprice,qty,description,brand,rating,reviews} = value;
     const image = req.file?.path
 
+    const uniqueproduct =await product.findOne({name})
+    console.log("uniqueproduct",uniqueproduct);
+       
 
-    const newuser = new product({
+    if(uniqueproduct){
+        return res.status(400).json({status:"fail",message:"this product is slreday in collection"})
+    }
+
+
+    const newuser = new product({       
         name,type,image,price,offerprice,qty,description,brand,rating,reviews
     })
    await newuser.save()
@@ -31,7 +41,7 @@ const editproduct = async (req,res,next)=>{
         new CustomError("Validation error: " + error.details[0].message, 400)
     }
     // const {name,type,price,offerprice,qty,description,brand,rating,reviews} = value;
-    const image = req.file?.path;
+    value.image = req.file?.path;
     const updateproduct = await product.findByIdAndUpdate(req.params.id, value, { new: true });
     if(!updateproduct){
         return res.send('Product not found with this ID')

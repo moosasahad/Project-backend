@@ -95,11 +95,9 @@ const updatecartcount = async (req, res, next) => {
   }
   if (action === "increment") {
     cartProduct.quantity += 1;
-    // res.send("quantity increased")
   } else if (action === "decrement") {
     if (cartProduct.quantity > 1) {
       cartProduct.quantity -= 1;
-      // res.send("quantity decrement")
     } else {
       return res.status(400).json("Quantity cannot be decremented below 1");
     }
@@ -120,7 +118,7 @@ const deletcartitem = async (req, res, next) => {
     console.log("hsajkdhsahdk cartdelete",productId);
     
   
-      // Find the user's cart and populate the products
+
       const carte = await cart.findOne({ user: userId })
   
       if (!carte) {
@@ -146,16 +144,16 @@ const deletallproduct = async (req, res, next) => {
     console.log("cleared");
     
 
-    // Find the cart for the user and populate the products
+    
     const carte = await cart.findOne({ user: userId }).populate("product.productId");
     if (!carte) {
         return next(new CustomError("Cart not found", 404));
     }
 
-    // Clear the product array in the cart
+    
     carte.product = [];
 
-    // Save the updated cart
+    
     await carte.save();
 
     res.json({ message: "Cart cleared" });

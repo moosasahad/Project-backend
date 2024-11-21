@@ -8,9 +8,15 @@ const userRg = async (req, res, next) => {
   const { value, error } = joischema.JoiUserSchema.validate(req.body);
   const { name, email, number, password, confirmpassword } = value;
 
+
   if (error) {
     return next(new CustomError(error.details[0].message, 400));
   }
+  const existinguser = await user.findOne({email})
+  if(existinguser){
+    return res.status(400).json({message:"email is already used"})
+  }
+  console.log("email",existinguser) 
 
   if (password !== confirmpassword) {
     return res.json(new CustomError("Passwords do not match", 400));
@@ -43,89 +49,104 @@ const userlogin = async (req, res, next) => {
   const { email, password } = value;
 
   // admin login
+  const admin = await user.findOne({ adminemail: email });
 
-  const admin = await user.findOne({adminemail:email})
-  
-    if(admin){ 
-      console.log("admin logined");
-      const admintoken = jwt.sign({
-        id:admin._id,admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'1d'}
-      );
-      const adminrefreshToken = jwt.sign(
-        {id:admin._id, admin:true},process.env.ADMIN_JWT_TOKEN,{expiresIn:'2d'}
-      );
-      res.cookie("admintoken",admintoken,{
-            httpOnly: true,      
-            secure: false, 
-            sameSite: "none", 
-            maxAge: 1 * 24 * 60 * 60 * 1000 
-      })
-      res.cookie("adminrefreshToken",adminrefreshToken, {
-        httpOnly: true, 
-            secure: false, 
-            sameSite: "none", 
-            maxAge: 2 * 24 * 60 * 60 * 1000 
-      })
-       res.status(200).json({ admin: true, message:"admin logined" });
-       res.end()
-    }else{
-       // user login and jwt token
+  if (admin) {
+    const admintoken = jwt.sign(
+      { id: admin._id, admin: true },
+      process.env.ADMIN_JWT_TOKEN,
+      { expiresIn: "1d" }
+    );
+    const adminrefreshToken = jwt.sign(
+      { id: admin._id, admin: true },
+      process.env.ADMIN_JWT_TOKEN,
+      { expiresIn: "2d" }
+    );
 
-  const loginuser = await user.findOne({email:email});
+    res.cookie("admintoken", admintoken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Secure only in production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie("adminrefreshToken", adminrefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 2 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie("adminuser", admin, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: "lax",
+    });
+
+    console.log("Admin logged in successfully.");
+    res.status(200).json({ admin: true, message: "Admin logged in successfully." });
+    return;
+  }
+
+  // user login and JWT token
+  const loginuser = await user.findOne({ email: email });
 
   if (!loginuser) {
-    return next(new CustomError("loginuser not found", 404));
+    return next(new CustomError("User not found", 404));
   }
+
   const password_match = await bcrypt.compare(password, loginuser.password);
   if (!password_match) {
-    return next(new CustomError("password is wrong", 404));
-  }
-  console.log("user status == ",loginuser.status);
-  
-  if(loginuser.status==true){
-    return next(new CustomError("user is blocked", 404));
+    return next(new CustomError("Password is incorrect", 404));
   }
 
+  if (loginuser.status === true) {
+    return next(new CustomError("User is blocked", 404));
+  }
 
-  
-  let token = jwt.sign(
+  const token = jwt.sign(
     { id: loginuser._id, name: loginuser.name, email: loginuser.email },
     process.env.JWT_TOKEN,
     { expiresIn: "1d" }
   );
+
   const refreshToken = jwt.sign(
     { id: loginuser._id, name: loginuser.name, email: loginuser.email },
     process.env.JWT_TOKEN,
     { expiresIn: "7d" }
   );
-  let userse = loginuser
-  console.log("tokendnd", token);
-  console.log("user logined");
-  
 
   res.cookie("token", token, {
-    httpOnly: true,
-    secure: false,
-    maxAge: 24 * 60 * 60 * 1000,
-    sameSite: "lax",
-  });
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: false,
-    maxAge: 24 * 60 * 60 * 1000,
-    sameSite: "lax",
-  });
-  res.cookie("users", JSON.stringify(userse), {
     httpOnly: false,
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.cookie("users", JSON.stringify(loginuser), {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
     maxAge: 24 * 60 * 60 * 1000,
     sameSite: "lax",
   });
-  res.status(200).json({ status: "success", message: "user Logged in successfully",name:loginuser,token});
-    } 
 
- 
+  console.log("User logged in successfully.");
+  res.status(200).json({
+    status: "success",
+    message: "User logged in successfully.",
+    name: loginuser,
+    token,
+  });
 };
+
 
 // logout................
 
@@ -163,12 +184,18 @@ const adminlogout = async (req,res,next) => {
       secure:true,
       sameSite:"none"    
   })
+  res.clearCookie("adminuser",{
+    httpOnly:true,
+    secure:true,
+    sameSite:"none"    
+})
     
     console.log("logouted")
     res.status(200).json({status:"success",message:"admin logout successfully"})
 }
 
 const userblocking = async (req, res) => {
+  console.log("reqid",req.body)
   try {
     const { userid } = req.body;
     if (!userid) {
