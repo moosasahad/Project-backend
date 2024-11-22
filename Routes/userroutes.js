@@ -46,6 +46,8 @@ routes
     .get('/getallorders',Authentication.userAuthMiddleware,tryCatch(orderProduct.getallorders))
     .post('/ordercancel/:id',Authentication.userAuthMiddleware,tryCatch(orderProduct.canselorder))
     .post('/verifyOrder/:id',Authentication.userAuthMiddleware,tryCatch(orderProduct.verifyOrder))
+    .post('/addrescontroller',Authentication.userAuthMiddleware,tryCatch(orderProduct.Addrescontroler))
+
     
     
     .post('/serachcontroller',tryCatch(serachcontroller.searchcontroller))

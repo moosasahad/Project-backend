@@ -7,6 +7,7 @@ const getallorders = async (req, res, next) => {
     const allorders = await Order.find() 
       .populate("userId", "-password")
       .populate("product.productId") 
+      .populate("addres")
       .lean(); 
 console.log("allorders",allorders);
 
@@ -44,7 +45,7 @@ const totalorderproductcount = async (req, res, next) => {
 
 const getordersbyid = async (req, res) => {
   const id = req.params.id;
-  const order = await Order.find({userId:id }).populate("product.productId").populate("userId")
+  const order = await Order.find({userId:id }).populate("product.productId").populate("userId").populate("addres")
      
   console.log(order);
   res.json({ massage: "orders by id", order });
